@@ -1,0 +1,195 @@
+{
+    "description": "A New Flow",
+    "states": [
+      {
+        "name": "Trigger",
+        "type": "trigger",
+        "transitions": [
+          {
+            "event": "incomingMessage"
+          },
+          {
+            "next": "function_3",
+            "event": "incomingCall"
+          },
+          {
+            "event": "incomingConversationMessage"
+          },
+          {
+            "event": "incomingRequest"
+          },
+          {
+            "event": "incomingParent"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      },
+      {
+        "name": "function_1",
+        "type": "run-function",
+        "transitions": [
+          {
+            "next": "split_1",
+            "event": "success"
+          },
+          {
+            "next": "connect_call_1",
+            "event": "fail"
+          }
+        ],
+        "properties": {
+          "service_sid": "",
+          "environment_sid": "",
+          "offset": {
+            "x": 220,
+            "y": 240
+          },
+          "function_sid": "",
+          "parameters": [
+            {
+              "value": "{{widgets.function_3.parsed.number}}",
+              "key": "From"
+            }
+          ],
+          "url": "https://URL/is-whitelisted"
+        }
+      },
+      {
+        "name": "split_1",
+        "type": "split-based-on",
+        "transitions": [
+          {
+            "next": "connect_call_1",
+            "event": "noMatch"
+          },
+          {
+            "next": "function_2",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to true",
+                "arguments": [
+                  "{{widgets.function_1.parsed.isWhitelisted}}"
+                ],
+                "type": "equal_to",
+                "value": "true"
+              }
+            ]
+          },
+          {
+            "next": "connect_call_1",
+            "event": "match",
+            "conditions": [
+              {
+                "friendly_name": "If value equal_to false",
+                "arguments": [
+                  "{{widgets.function_1.parsed.isWhitelisted}}"
+                ],
+                "type": "equal_to",
+                "value": "false"
+              }
+            ]
+          }
+        ],
+        "properties": {
+          "input": "{{widgets.function_1.parsed.isWhitelisted}}",
+          "offset": {
+            "x": -70,
+            "y": 520
+          }
+        }
+      },
+      {
+        "name": "connect_call_1",
+        "type": "connect-call-to",
+        "transitions": [
+          {
+            "event": "callCompleted"
+          },
+          {
+            "event": "hangup"
+          }
+        ],
+        "properties": {
+          "offset": {
+            "x": 850,
+            "y": 810
+          },
+          "caller_id": "{{contact.channel.address}}",
+          "noun": "number",
+          "to": "+1MY_PHONE_NUMBER",
+          "timeout": 30
+        }
+      },
+      {
+        "name": "function_2",
+        "type": "run-function",
+        "transitions": [
+          {
+            "event": "success"
+          },
+          {
+            "event": "fail"
+          }
+        ],
+        "properties": {
+          "service_sid": "",
+          "environment_sid": "",
+          "offset": {
+            "x": 100,
+            "y": 860
+          },
+          "function_sid": "",
+          "parameters": [
+            {
+              "value": "{{trigger.call.To}}",
+              "key": "from"
+            },
+            {
+              "value": "{{widgets.function_3.parsed.number}}",
+              "key": "To"
+            }
+          ],
+          "url": "https://URL/connect-to-outbound-call"
+        }
+      },
+      {
+        "name": "function_3",
+        "type": "run-function",
+        "transitions": [
+          {
+            "next": "function_1",
+            "event": "success"
+          },
+          {
+            "event": "fail"
+          }
+        ],
+        "properties": {
+          "service_sid": "",
+          "environment_sid": "",
+          "offset": {
+            "x": -340,
+            "y": 260
+          },
+          "function_sid": "",
+          "parameters": [
+            {
+              "value": "{{trigger.call.To}}",
+              "key": "Number"
+            }
+          ],
+          "url": "https://URL/getnumberfromsip"
+        }
+      }
+    ],
+    "initial_state": "Trigger",
+    "flags": {
+      "allow_concurrent_calls": true
+    }
+  }
